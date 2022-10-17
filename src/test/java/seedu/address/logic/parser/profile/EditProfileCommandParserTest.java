@@ -1,19 +1,20 @@
 package seedu.address.logic.parser.profile;
 
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
 import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_AMY;
-//import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_EMAIL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_TAG_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_FRIEND;
 import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_HUSBAND;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_AMY;
-//import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
@@ -42,6 +43,9 @@ public class EditProfileCommandParserTest {
 
     private static final String MESSAGE_INVALID_FORMAT =
             String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditProfileCommand.MESSAGE_USAGE);
+
+    private static final String MESSAGE_INVALID_REPEATED =
+            String.format(MESSAGE_INVALID_REPEATED_PREFIX, EditProfileCommand.MESSAGE_USAGE);
 
     private EditProfileCommandParser parser = new EditProfileCommandParser();
 
@@ -82,22 +86,89 @@ public class EditProfileCommandParserTest {
         // invalid phone followed by valid email
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC + EMAIL_DESC_AMY, Phone.MESSAGE_CONSTRAINTS);
 
-        //    // valid phone followed by invalid phone. The test case for invalid phone followed by valid phone
-        //    // is tested at {@code parse_invalidValueFollowedByValidValue_success()}
-        //    assertParseFailure(parser, "1" + PHONE_DESC_BOB + INVALID_PHONE_DESC, Phone.MESSAGE_CONSTRAINTS);
-        //
-        //    // while parsing {@code PREFIX_TAG} alone will reset the tags of the {@code Profile} being edited,
-        //    // parsing it together with a valid tag results in error
-        //    assertParseFailure(parser, "1" + TAG_DESC_FRIEND + TAG_DESC_HUSBAND + TAG_EMPTY,
-        //            Tag.MESSAGE_CONSTRAINTS);
-        //    assertParseFailure(parser, "1" + TAG_DESC_FRIEND + TAG_EMPTY + TAG_DESC_HUSBAND,
-        //            Tag.MESSAGE_CONSTRAINTS);
-        //    assertParseFailure(parser, "1" + TAG_EMPTY + TAG_DESC_FRIEND + TAG_DESC_HUSBAND,
-        //            Tag.MESSAGE_CONSTRAINTS);
+        // while parsing {@code PREFIX_TAG} alone will reset the tags of the {@code Profile} being edited,
+        // parsing it together with a valid tag results in error
+        assertParseFailure(parser, "1" + TAG_DESC_FRIEND + TAG_DESC_HUSBAND + TAG_EMPTY,
+                Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1" + TAG_DESC_FRIEND + TAG_EMPTY + TAG_DESC_HUSBAND,
+                Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1" + TAG_EMPTY + TAG_DESC_FRIEND + TAG_DESC_HUSBAND,
+                Tag.MESSAGE_CONSTRAINTS);
 
         // multiple invalid values, but only the first invalid value is captured
         assertParseFailure(parser, "1" + INVALID_NAME_DESC + INVALID_EMAIL_DESC + VALID_PHONE_AMY,
                 Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_repeatedFields_failure() {
+        // repeated name, same name
+        Index targetIndex = INDEX_FIRST_PROFILE;
+        String userInput = targetIndex.getOneBased() + NAME_DESC_AMY + NAME_DESC_AMY;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated name, different name
+        userInput = targetIndex.getOneBased() + NAME_DESC_AMY + NAME_DESC_BOB;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated phone, same phone
+        userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + PHONE_DESC_AMY;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        //repeated phone, different phone'
+        userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + PHONE_DESC_BOB;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated email, same email
+        userInput = targetIndex.getOneBased() + EMAIL_DESC_AMY + EMAIL_DESC_AMY;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated email, different email
+        userInput = targetIndex.getOneBased() + EMAIL_DESC_AMY + EMAIL_DESC_BOB;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+    }
+
+    @Test
+    public void parse_multipleRepeatedFields_failure() {
+        Index targetIndex = INDEX_FIRST_PROFILE;
+        String userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + EMAIL_DESC_AMY
+                + TAG_DESC_FRIEND + PHONE_DESC_AMY + EMAIL_DESC_AMY + TAG_DESC_FRIEND
+                + PHONE_DESC_BOB + EMAIL_DESC_BOB + TAG_DESC_HUSBAND;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+    }
+
+    @Test
+    public void parse_repeatedPrefixWithInvalidValue_failure() {
+        // valid phone followed by invalid phone. The test case for invalid phone followed by valid phone
+        // is tested at {@code parse_repeatedPrefixInvalidValueFollowedByValidValue_failure()}
+        Index targetIndex = INDEX_FIRST_PROFILE;
+        String userInput = targetIndex.getOneBased() + PHONE_DESC_BOB + INVALID_PHONE_DESC;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+    }
+
+    @Test
+    public void parse_repeatedPrefixInvalidValueFollowedByValidValue_failure() {
+        // no other valid values specified
+        Index targetIndex = INDEX_FIRST_PROFILE;
+        String userInput = targetIndex.getOneBased() + INVALID_PHONE_DESC + PHONE_DESC_BOB;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // other valid values specified
+        userInput = targetIndex.getOneBased() + EMAIL_DESC_BOB + INVALID_PHONE_DESC
+                + PHONE_DESC_BOB;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+    }
+
+    @Test
+    public void parse_repeatedTags_success() {
+        Index targetIndex = INDEX_SECOND_PROFILE;
+        String userInput = targetIndex.getOneBased() + TAG_DESC_HUSBAND + TAG_DESC_FRIEND;
+
+        EditProfileDescriptor descriptor = new EditProfileDescriptorBuilder()
+                .withTags(VALID_TAG_HUSBAND, VALID_TAG_FRIEND).build();
+        EditProfileCommand expectedCommand = new EditProfileCommand(targetIndex, descriptor);
+
+        assertParseSuccess(parser, userInput, expectedCommand);
     }
 
     @Test
@@ -153,38 +224,6 @@ public class EditProfileCommandParserTest {
         expectedCommand = new EditProfileCommand(targetIndex, descriptor);
         assertParseSuccess(parser, userInput, expectedCommand);
     }
-
-    //    @Test
-    //    public void parse_multipleRepeatedFields_acceptsLast() {
-    //        Index targetIndex = INDEX_FIRST_PROFILE;
-    //        String userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + EMAIL_DESC_AMY
-    //                + TAG_DESC_FRIEND + PHONE_DESC_AMY + EMAIL_DESC_AMY + TAG_DESC_FRIEND
-    //                + PHONE_DESC_BOB + EMAIL_DESC_BOB + TAG_DESC_HUSBAND;
-    //        EditProfileDescriptor descriptor = new EditProfileDescriptorBuilder().withPhone(VALID_PHONE_BOB)
-    //                .withEmail(VALID_EMAIL_BOB).withTags(VALID_TAG_FRIEND, VALID_TAG_HUSBAND)
-    //                .build();
-    //        EditProfileCommand expectedCommand = new EditProfileCommand(targetIndex, descriptor);
-    //
-    //        assertParseSuccess(parser, userInput, expectedCommand);
-    //    }
-
-    //    @Test
-    //    public void parse_invalidValueFollowedByValidValue_success() {
-    //        // no other valid values specified
-    //        Index targetIndex = INDEX_FIRST_PROFILE;
-    //        String userInput = targetIndex.getOneBased() + INVALID_PHONE_DESC + PHONE_DESC_BOB;
-    //        EditProfileDescriptor descriptor = new EditProfileDescriptorBuilder().withPhone(VALID_PHONE_BOB).build();
-    //        EditProfileCommand expectedCommand = new EditProfileCommand(targetIndex, descriptor);
-    //        assertParseSuccess(parser, userInput, expectedCommand);
-    //
-    //        // other valid values specified
-    //        userInput = targetIndex.getOneBased() + EMAIL_DESC_BOB + INVALID_PHONE_DESC
-    //                + PHONE_DESC_BOB;
-    //        descriptor = new EditProfileDescriptorBuilder().withPhone(VALID_PHONE_BOB).withEmail(VALID_EMAIL_BOB)
-    //                .build();
-    //        expectedCommand = new EditProfileCommand(targetIndex, descriptor);
-    //        assertParseSuccess(parser, userInput, expectedCommand);
-    //    }
 
     @Test
     public void parse_resetTags_success() {
