@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Stores mapping of prefixes to their respective arguments.
@@ -72,4 +73,15 @@ public class ArgumentMultimap {
         }
         return matcher.group("arguments").trim();
     }
+
+    /**
+     * Checks if any of the given {@code prefixes} are repeated in the {@code argMultimap}
+     *
+     * @param prefixes Array of prefixes to check if repeated
+     * @return true if any prefix is repeated, false otherwise
+     */
+    public boolean arePrefixesRepeated(Prefix... prefixes) {
+        return Stream.of(prefixes).anyMatch(prefix -> getAllValues(prefix).size() > 1);
+    }
+
 }

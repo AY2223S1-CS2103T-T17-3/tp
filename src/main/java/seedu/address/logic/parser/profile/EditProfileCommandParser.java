@@ -2,6 +2,7 @@ package seedu.address.logic.parser.profile;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_OPTION;
@@ -46,6 +47,10 @@ public class EditProfileCommandParser implements Parser<EditProfileCommand> {
         } catch (ParseException pe) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
                     EditProfileCommand.MESSAGE_USAGE), pe);
+        }
+
+        if (argMultimap.arePrefixesRepeated(PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_TELEGRAM)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_REPEATED_PREFIX, EditProfileCommand.MESSAGE_USAGE));
         }
 
         EditProfileDescriptor editProfileDescriptor = new EditProfileDescriptor();

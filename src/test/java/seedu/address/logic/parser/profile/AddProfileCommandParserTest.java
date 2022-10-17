@@ -48,21 +48,22 @@ public class AddProfileCommandParserTest {
         assertParseSuccess(parser, PREAMBLE_WHITESPACE + NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB
                 + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
 
-        // multiple names - last name accepted
-        assertParseSuccess(parser, NAME_DESC_AMY + NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB
-                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
-
-        // multiple phones - last phone accepted
-        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_AMY + PHONE_DESC_BOB + EMAIL_DESC_BOB
-                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
-
-        // multiple emails - last email accepted
-        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
-                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
-
-        // multiple telegrams - last telegram accepted
-        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
-                + TELEGRAM_DESC_AMY + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
+        //        // multiple names - last name accepted
+        //        assertParseSuccess(parser, NAME_DESC_AMY + NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB
+        //                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
+        //
+        //        // multiple phones - last phone accepted
+        //        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_AMY + PHONE_DESC_BOB + EMAIL_DESC_BOB
+        //                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
+        //
+        //        // multiple emails - last email accepted
+        //        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
+        //                + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND, new AddProfileCommand(expectedProfile));
+        //
+        //        // multiple telegrams - last telegram accepted
+        //        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
+        //                + TELEGRAM_DESC_AMY + TELEGRAM_DESC_BOB + TAG_DESC_FRIEND,
+        //                new AddProfileCommand(expectedProfile));
 
         // multiple tags - all accepted
         Profile expectedProfileMultipleTags = new ProfileBuilder(BOB).withTags(VALID_TAG_FRIEND, VALID_TAG_HUSBAND)
