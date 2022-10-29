@@ -1,6 +1,7 @@
 package seedu.address.logic.parser.event;
 
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_END_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_OPTION;
@@ -40,6 +41,10 @@ public class AddEventCommandParser implements Parser<AddEventCommand> {
         if (!arePrefixesPresent(argMultimap, PREFIX_NAME, PREFIX_START_DATE, PREFIX_END_DATE)
                 || !argMultimap.getPreamble().isEmpty() || !argMultimap.getOptionArgs().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddEventCommand.MESSAGE_USAGE));
+        }
+
+        if (argMultimap.arePrefixesRepeated(PREFIX_NAME, PREFIX_START_DATE, PREFIX_END_DATE)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_REPEATED_PREFIX, AddEventCommand.MESSAGE_USAGE));
         }
 
         Title title = ParserUtil.parseTitle(argMultimap.getValue(PREFIX_NAME).get());
