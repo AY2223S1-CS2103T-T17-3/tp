@@ -26,18 +26,24 @@ public class AddProfileCommand extends ProfileCommand {
             + PREFIX_NAME + "NAME "
             + PREFIX_PHONE + "PHONE "
             + PREFIX_EMAIL + "EMAIL "
-            + "[" + PREFIX_TELEGRAM + "TELEGRAM USERNAME]\n"
+            + "[" + PREFIX_TELEGRAM + "TELEGRAM USERNAME] "
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_OPTION + COMMAND_OPTION + " "
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
-            + PREFIX_EMAIL + "johnd@example.com "
+            + PREFIX_EMAIL + "johnd@u.nus.edu "
             + PREFIX_TELEGRAM + "johndoe "
             + PREFIX_TAG + "friends "
             + PREFIX_TAG + "owesMoney";
 
     public static final String MESSAGE_SUCCESS = "New profile added:\n%1$s";
-    public static final String MESSAGE_DUPLICATE_PROFILE = "This profile already exists in the address book";
+    public static final String MESSAGE_HELP = "Adds a profile to NUScheduler.\n"
+            + "Format: " + COMMAND_WORD + " " + PREFIX_OPTION + COMMAND_OPTION + " "
+            + PREFIX_NAME + "NAME "
+            + PREFIX_PHONE + "PHONE "
+            + PREFIX_EMAIL + "EMAIL "
+            + "[" + PREFIX_TELEGRAM + "TELEGRAM USERNAME] "
+            + "[" + PREFIX_TAG + "TAG]...";
 
     private final Profile toAdd;
 
@@ -53,8 +59,16 @@ public class AddProfileCommand extends ProfileCommand {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        if (model.hasProfile(toAdd)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PROFILE);
+        if (model.hasEmail(toAdd)) {
+            throw new CommandException(MESSAGE_SIMILAR_EMAIL);
+        }
+
+        if (model.hasPhone(toAdd)) {
+            throw new CommandException(MESSAGE_SIMILAR_PHONE);
+        }
+
+        if (model.hasTelegram(toAdd)) {
+            throw new CommandException(MESSAGE_SIMILAR_TELEGRAM);
         }
 
         model.addProfile(toAdd);

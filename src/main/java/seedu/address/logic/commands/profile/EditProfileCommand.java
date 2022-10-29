@@ -7,6 +7,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_OPTION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TELEGRAM;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_EVENTS;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PROFILES;
 
 import java.util.Collections;
@@ -21,7 +22,9 @@ import seedu.address.commons.util.CollectionUtil;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.event.Event;
 import seedu.address.model.profile.Email;
+import seedu.address.model.profile.EventsAttending;
 import seedu.address.model.profile.Name;
 import seedu.address.model.profile.Phone;
 import seedu.address.model.profile.Profile;
@@ -47,13 +50,19 @@ public class EditProfileCommand extends ProfileCommand {
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_OPTION + COMMAND_OPTION + " 1 "
             + PREFIX_PHONE + "91234567 "
-            + PREFIX_EMAIL + "johndoe@example.com "
+            + PREFIX_EMAIL + "johndoe@u.nus.edu "
             + PREFIX_TELEGRAM + "johndoe "
             + PREFIX_TAG + "CS2103T";
 
     public static final String MESSAGE_EDIT_PROFILE_SUCCESS = "Edited Profile:\n%1$s";
+    public static final String MESSAGE_HELP = "Edits an existing profile in NUScheduler.\n"
+            + "Format: " + COMMAND_WORD + " " + PREFIX_OPTION + COMMAND_OPTION + " INDEX "
+            + "[" + PREFIX_NAME + "NAME] "
+            + "[" + PREFIX_PHONE + "PHONE] "
+            + "[" + PREFIX_EMAIL + "EMAIL] "
+            + "[" + PREFIX_TELEGRAM + "TELEGRAM USERNAME] "
+            + "[" + PREFIX_TAG + "TAG]...\n";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_DUPLICATE_PROFILE = "This profile already exists in the address book.";
 
     private final Index index;
     private final EditProfileDescriptor editProfileDescriptor;
@@ -82,12 +91,30 @@ public class EditProfileCommand extends ProfileCommand {
         Profile profileToEdit = lastShownList.get(index.getZeroBased());
         Profile editedProfile = createEditedProfile(profileToEdit, editProfileDescriptor);
 
-        if (!profileToEdit.isSameProfile(editedProfile) && model.hasProfile(editedProfile)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PROFILE);
+        if (!profileToEdit.isSameEmail(editedProfile) && model.hasEmail(editedProfile)) {
+            throw new CommandException(MESSAGE_SIMILAR_EMAIL);
         }
 
+        if (!profileToEdit.isSamePhone(editedProfile) && model.hasPhone(editedProfile)) {
+            throw new CommandException(MESSAGE_SIMILAR_PHONE);
+        }
+
+        if (!profileToEdit.isSameTelegramNotEmpty(editedProfile) && model.hasTelegram(editedProfile)) {
+            throw new CommandException(MESSAGE_SIMILAR_TELEGRAM);
+        }
+
+        List<Event> events = profileToEdit.getEventsAttendingList();
         model.setProfile(profileToEdit, editedProfile);
+
+        // trigger re-render
+        for (Event e : events) {
+            Event eventCopy = new Event(e.getTitle(), e.getStartDateTime(), e.getEndDateTime(),
+                    e.getTags(), e.getAttendees());
+            model.setEvent(e, eventCopy);
+        }
+
         model.updateFilteredProfileList(PREDICATE_SHOW_ALL_PROFILES);
+        model.updateFilteredEventList(PREDICATE_SHOW_ALL_EVENTS);
         return new CommandResult(String.format(MESSAGE_EDIT_PROFILE_SUCCESS, editedProfile));
     }
 
@@ -103,8 +130,11 @@ public class EditProfileCommand extends ProfileCommand {
         Email updatedEmail = editProfileDescriptor.getEmail().orElse(profileToEdit.getEmail());
         Telegram updatedTelegram = editProfileDescriptor.getTelegram().orElse(profileToEdit.getTelegram());
         Set<Tag> updatedTags = editProfileDescriptor.getTags().orElse(profileToEdit.getTags());
+        EventsAttending updatedEventsToAttend = editProfileDescriptor.getEventsToAttend()
+                .orElse(profileToEdit.getEventsToAttend());
 
-        return new Profile(updatedName, updatedPhone, updatedEmail, updatedTelegram, updatedTags);
+        return new Profile(updatedName, updatedPhone, updatedEmail, updatedTelegram, updatedTags,
+                updatedEventsToAttend);
     }
 
     @Override
@@ -135,6 +165,7 @@ public class EditProfileCommand extends ProfileCommand {
         private Email email;
         private Telegram telegram;
         private Set<Tag> tags;
+        private EventsAttending eventsToAttend;
 
         public EditProfileDescriptor() {}
 
@@ -148,6 +179,7 @@ public class EditProfileCommand extends ProfileCommand {
             setEmail(toCopy.email);
             setTelegram(toCopy.telegram);
             setTags(toCopy.tags);
+            setEventsToAttend(toCopy.eventsToAttend);
         }
 
         /**
@@ -189,6 +221,14 @@ public class EditProfileCommand extends ProfileCommand {
             return Optional.ofNullable(telegram);
         }
 
+        public void setEventsToAttend(EventsAttending eventsToAttend) {
+            this.eventsToAttend = eventsToAttend;
+        }
+
+        public Optional<EventsAttending> getEventsToAttend() {
+            return Optional.ofNullable(eventsToAttend);
+        }
+
         /**
          * Sets {@code tags} to this object's {@code tags}.
          * A defensive copy of {@code tags} is used internally.
@@ -225,6 +265,7 @@ public class EditProfileCommand extends ProfileCommand {
                     && getPhone().equals(e.getPhone())
                     && getEmail().equals(e.getEmail())
                     && getTelegram().equals(e.getTelegram())
+                    && getEventsToAttend().equals(e.getEventsToAttend())
                     && getTags().equals(e.getTags());
         }
     }

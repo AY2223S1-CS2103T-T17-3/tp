@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PROFILES;
 import static seedu.address.testutil.Assert.assertThrows;
+import static seedu.address.testutil.TypicalEvents.PRESENTATION;
 import static seedu.address.testutil.TypicalProfiles.ALICE;
 import static seedu.address.testutil.TypicalProfiles.BENSON;
 
@@ -73,24 +74,77 @@ public class ModelManagerTest {
     }
 
     @Test
-    public void hasProfile_nullProfile_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> modelManager.hasProfile(null));
+    public void hasEmail_nullEmail_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasEmail(null));
     }
 
     @Test
-    public void hasProfile_profileNotInAddressBook_returnsFalse() {
-        assertFalse(modelManager.hasProfile(ALICE));
+    public void hasEmail_emailNotInAddressBook_returnsFalse() {
+        assertFalse(modelManager.hasEmail(ALICE));
     }
 
     @Test
-    public void hasProfile_profileInAddressBook_returnsTrue() {
+    public void hasEmail_emailInAddressBook_returnsTrue() {
         modelManager.addProfile(ALICE);
-        assertTrue(modelManager.hasProfile(ALICE));
+        assertTrue(modelManager.hasEmail(ALICE));
+    }
+
+    @Test
+    public void hasPhone_nullPhone_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasPhone(null));
+    }
+
+    @Test
+    public void hasPhone_phoneNotInAddressBook_returnsFalse() {
+        assertFalse(modelManager.hasPhone(ALICE));
+    }
+
+    @Test
+    public void hasPhone_phoneInAddressBook_returnsTrue() {
+        modelManager.addProfile(ALICE);
+        assertTrue(modelManager.hasPhone(ALICE));
+    }
+
+    @Test
+    public void hasTelegram_nullTelegram_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasTelegram(null));
+    }
+
+    @Test
+    public void hasTelegram_telegramNotInAddressBook_returnsFalse() {
+        assertFalse(modelManager.hasTelegram(ALICE));
+    }
+
+    @Test
+    public void hasTelegram_telegramInAddressBook_returnsTrue() {
+        modelManager.addProfile(ALICE);
+        assertTrue(modelManager.hasTelegram(ALICE));
+    }
+
+    @Test
+    public void hasEvent_nullEvent_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasEvent(null));
+    }
+
+    @Test
+    public void hasEvent_eventNotInAddressBook_returnsFalse() {
+        assertFalse(modelManager.hasEvent(PRESENTATION));
+    }
+
+    @Test
+    public void hasEvent_eventInAddressBook_returnsTrue() {
+        modelManager.addEvent(PRESENTATION);
+        assertTrue(modelManager.hasEvent(PRESENTATION));
     }
 
     @Test
     public void getFilteredProfileList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> modelManager.getFilteredProfileList().remove(0));
+    }
+
+    @Test
+    public void getEventList_modifyList_throwsUnsupportedOperationException() {
+        assertThrows(UnsupportedOperationException.class, () -> modelManager.getFilteredEventList().remove(0));
     }
 
     @Test

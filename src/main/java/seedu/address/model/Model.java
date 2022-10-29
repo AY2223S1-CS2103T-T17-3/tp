@@ -1,10 +1,12 @@
 package seedu.address.model;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.model.event.Event;
 import seedu.address.model.profile.Profile;
 
 /**
@@ -13,6 +15,9 @@ import seedu.address.model.profile.Profile;
 public interface Model {
     /** {@code Predicate} that always evaluate to true */
     Predicate<Profile> PREDICATE_SHOW_ALL_PROFILES = unused -> true;
+
+    /** {@code Predicate} that always evaluate to true */
+    Predicate<Event> PREDICATE_SHOW_ALL_EVENTS = unused -> true;
 
     /**
      * Replaces user prefs data with the data in {@code userPrefs}.
@@ -53,15 +58,34 @@ public interface Model {
     ReadOnlyAddressBook getAddressBook();
 
     /**
-     * Returns true if a profile with the same identity as {@code profile} exists in the address book.
+     * Returns true if a profile with the same email as {@code profile} exists in the address book.
      */
-    boolean hasProfile(Profile profile);
+    boolean hasEmail(Profile profile);
+
+    /**
+     * Returns true if a profile with the same phone as {@code profile} exists in the address book.
+     */
+    boolean hasPhone(Profile profile);
+
+    /**
+     * Returns true if a profile with the same telegram as {@code profile} exists in the address book.
+     */
+    boolean hasTelegram(Profile profile);
 
     /**
      * Deletes the given profile.
      * The profile must exist in the address book.
      */
     void deleteProfile(Profile target);
+
+    /**
+     * Replaces the given event {@code target} with {@code editedEvent}.
+     * {@code target} must exist in the address book.
+     * The event identity of {@code editedEvent} must not be the same as another existing
+     * event in the address book.
+     * Ensures the change is updated for all event attendees.
+     */
+    void setEventForAttendees(Event target, Event editedEvent);
 
     /**
      * Adds the given profile.
@@ -85,4 +109,66 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredProfileList(Predicate<Profile> predicate);
+
+    /**
+     * Returns true if an event with the same identity as {@code event} exists in the address book.
+     */
+    boolean hasEvent(Event event);
+
+    /**
+     * Deletes the given event.
+     * The event must exist in the address book.
+     */
+    void deleteEvent(Event target);
+
+    /**
+     * Adds the given event.
+     * {@code event} must not already exist in the address book.
+     */
+    void addEvent(Event event);
+
+    /**
+     * Replaces the given event {@code target} with {@code editedEvent}.
+     * {@code target} must exist in the address book.
+     * The event identity of {@code editedEvent} must not be the same as another existing
+     * event in the address book.
+     */
+    void setEvent(Event target, Event editedEvent);
+
+    /**
+     * Adds the given list of profiles {@code profilesToAdd} to the given event's list of attendees.
+     * {@code event} must exist in the address book.
+     * Profiles in {@code profilesToAdd} must also exist in the address book.
+     */
+    void addEventAttendees(Event event, List<Profile> profilesToAdd);
+
+    /**
+     * Deletes the given list of profiles {@code profilesToDelete} from the given event's list of attendees.
+     * {@code event} must exist in the address book.
+     * Profiles in {@code profilesToDelete} must also exist in the address book.
+     */
+    void deleteEventAttendees(Event event, List<Profile> profilesToDelete);
+
+    /**
+     * Adds the given event {@code event} to every profile in the given list of profiles {@code profilesToAddEventTo}.
+     * {@code event} must exist in the address book.
+     * Profiles in {@profilesToAddEventTo} must also exist in the address book.
+     */
+    void addEventToAttendees(Event event, List<Profile> profilesToAddEventTo);
+
+    /**
+     * Deletes the event {@code target} from list of profiles {@code profilesToEdit}.
+     * {@code target} must exist in the address book.
+     * Profiles in {@code profilesToEdit} must also exist in the address book.
+     */
+    void removeEventFromAttendees(Event target, List<Profile> profilesToEdit);
+
+    /** Returns an unmodifiable view of the filtered event list */
+    ObservableList<Event> getFilteredEventList();
+
+    /**
+     * Updates the filter of the filtered event list to filter by the given {@code predicate}.
+     * @throws NullPointerException if {@code predicate} is null.
+     */
+    void updateFilteredEventList(Predicate<Event> predicate);
 }
