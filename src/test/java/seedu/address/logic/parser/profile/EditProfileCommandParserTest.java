@@ -101,7 +101,7 @@ public class EditProfileCommandParserTest {
     }
 
     @Test
-    public void parse_repeatedFields_failure() {
+    public void parse_invalidRepeatedFields_failure() {
         // repeated name, same name
         Index targetIndex = INDEX_FIRST_PROFILE;
         String userInput = targetIndex.getOneBased() + NAME_DESC_AMY + NAME_DESC_AMY;
@@ -115,7 +115,7 @@ public class EditProfileCommandParserTest {
         userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + PHONE_DESC_AMY;
         assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
 
-        //repeated phone, different phone'
+        //repeated phone, different phone
         userInput = targetIndex.getOneBased() + PHONE_DESC_AMY + PHONE_DESC_BOB;
         assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
 
@@ -137,6 +137,9 @@ public class EditProfileCommandParserTest {
         assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
     }
 
+    /**
+     * Test to show that InvalidValue error will be detected before repeated prefix.
+     */
     @Test
     public void parse_repeatedPrefixWithInvalidValue_failure() {
         // valid phone followed by invalid phone. The test case for invalid phone followed by valid phone
@@ -146,6 +149,9 @@ public class EditProfileCommandParserTest {
         assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
     }
 
+    /**
+     * Test to show that InvalidValue error will be detected before repeated prefix.
+     */
     @Test
     public void parse_repeatedPrefixInvalidValueFollowedByValidValue_failure() {
         // no other valid values specified

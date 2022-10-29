@@ -1,6 +1,7 @@
 package seedu.address.logic.parser.event;
 
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
 import static seedu.address.logic.commands.CommandTestUtil.END_DESC_PRACTICE;
 import static seedu.address.logic.commands.CommandTestUtil.END_DESC_PRESENTATION;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_END_DESC;
@@ -41,18 +42,6 @@ public class AddEventCommandParserTest {
 
         // whitespace only preamble
         assertParseSuccess(parser, PREAMBLE_WHITESPACE + TITLE_DESC_PRACTICE + START_DESC_PRACTICE + END_DESC_PRACTICE
-               + TAG_DESC_SWE, new AddEventCommand(expectedEvent));
-
-        // multiple titles - last title accepted
-        assertParseSuccess(parser, TITLE_DESC_PRESENTATION + TITLE_DESC_PRACTICE + START_DESC_PRACTICE
-                + END_DESC_PRACTICE + TAG_DESC_SWE, new AddEventCommand(expectedEvent));
-
-        // multiple ends - last end accepted
-        assertParseSuccess(parser, TITLE_DESC_PRACTICE + START_DESC_PRESENTATION + START_DESC_PRACTICE
-                + END_DESC_PRACTICE + TAG_DESC_SWE, new AddEventCommand(expectedEvent));
-
-        // multiple starts - last start accepted
-        assertParseSuccess(parser, TITLE_DESC_PRACTICE + START_DESC_PRACTICE + END_DESC_PRESENTATION + END_DESC_PRACTICE
                + TAG_DESC_SWE, new AddEventCommand(expectedEvent));
 
         // multiple tags - all accepted
@@ -112,5 +101,23 @@ public class AddEventCommandParserTest {
         assertParseFailure(parser, PREAMBLE_NON_EMPTY + TITLE_DESC_PRACTICE + START_DESC_PRACTICE + END_DESC_PRACTICE
                         + TAG_DESC_SWE + TAG_DESC_CCA,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddEventCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_invalidRepeatedPrefix_failure() {
+        // multiple titles
+        assertParseFailure(parser, TITLE_DESC_PRESENTATION + TITLE_DESC_PRACTICE + START_DESC_PRACTICE
+                + END_DESC_PRACTICE + TAG_DESC_SWE,
+                String.format(MESSAGE_INVALID_REPEATED_PREFIX, AddEventCommand.MESSAGE_USAGE));
+
+        // multiple ends
+        assertParseFailure(parser, TITLE_DESC_PRACTICE + START_DESC_PRESENTATION + START_DESC_PRACTICE
+                + END_DESC_PRACTICE + TAG_DESC_SWE,
+                String.format(MESSAGE_INVALID_REPEATED_PREFIX, AddEventCommand.MESSAGE_USAGE));
+
+        // multiple starts
+        assertParseFailure(parser, TITLE_DESC_PRACTICE + START_DESC_PRACTICE + END_DESC_PRESENTATION + END_DESC_PRACTICE
+                + TAG_DESC_SWE,
+                String.format(MESSAGE_INVALID_REPEATED_PREFIX, AddEventCommand.MESSAGE_USAGE));
     }
 }

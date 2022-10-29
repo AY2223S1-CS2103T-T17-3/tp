@@ -3,14 +3,11 @@ package seedu.address.logic.parser.event;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_END_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_OPTION;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_START_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TELEGRAM;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -51,7 +48,7 @@ public class EditEventCommandParser implements Parser<EditEventCommand> {
                     EditEventCommand.MESSAGE_USAGE), pe);
         }
 
-        if (argMultimap.arePrefixesRepeated(PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_TELEGRAM)) {
+        if (argMultimap.arePrefixesRepeated(PREFIX_NAME, PREFIX_START_DATE, PREFIX_END_DATE)) {
             throw new ParseException(String.format(MESSAGE_INVALID_REPEATED_PREFIX, EditEventCommand.MESSAGE_USAGE));
         }
 

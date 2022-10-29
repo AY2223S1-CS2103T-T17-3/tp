@@ -1,6 +1,7 @@
 package seedu.address.logic.parser.event;
 
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_REPEATED_PREFIX;
 import static seedu.address.logic.commands.CommandTestUtil.END_DESC_PRACTICE;
 import static seedu.address.logic.commands.CommandTestUtil.END_DESC_PRESENTATION;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_END_DESC;
@@ -42,6 +43,9 @@ public class EditEventCommandParserTest {
 
     private static final String MESSAGE_INVALID_FORMAT =
             String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditEventCommand.MESSAGE_USAGE);
+
+    private static final String MESSAGE_INVALID_REPEATED =
+            String.format(MESSAGE_INVALID_REPEATED_PREFIX, EditEventCommand.MESSAGE_USAGE);
 
     private EditEventCommandParser parser = new EditEventCommandParser();
 
@@ -88,11 +92,6 @@ public class EditEventCommandParserTest {
 
         // invalid start date time followed by valid end date time
         assertParseFailure(parser, "1" + INVALID_START_DESC + END_DESC_PRACTICE,
-                DateTime.MESSAGE_CONSTRAINTS);
-
-        // valid start followed by invalid start. The test case for invalid start followed by valid start
-        // is tested at {@code parse_invalidValueFollowedByValidValue_success()}
-        assertParseFailure(parser, "1" + START_DESC_PRACTICE + INVALID_START_DESC,
                 DateTime.MESSAGE_CONSTRAINTS);
 
         // while parsing {@code PREFIX_TAG} alone will reset the tags of the {@code Event} being edited,
@@ -161,34 +160,42 @@ public class EditEventCommandParserTest {
     }
 
     @Test
-    public void parse_multipleRepeatedFields_acceptsLast() {
+    public void parse_invalidRepeatedFields_failure() {
+        // repeated title, same title
         Index targetIndex = INDEX_FIRST_EVENT;
-        String userInput = targetIndex.getOneBased() + START_DESC_PRACTICE + END_DESC_PRACTICE
-                + TAG_DESC_SWE + START_DESC_PRACTICE + END_DESC_PRACTICE + TAG_DESC_CCA
-                + START_DESC_PRESENTATION + END_DESC_PRESENTATION;
-        EditEventDescriptor descriptor = new EditEventDescriptorBuilder().withStartDateTime(VALID_START_PRESENTATION)
-                .withEndDateTime(VALID_END_PRESENTATION).withTags(VALID_TAG_CCA, VALID_TAG_SWE)
-                .build();
-        EditEventCommand expectedCommand = new EditEventCommand(targetIndex, descriptor);
+        String userInput = targetIndex.getOneBased() + TITLE_DESC_PRACTICE + TITLE_DESC_PRACTICE;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
 
-        assertParseSuccess(parser, userInput, expectedCommand);
+        // repeated title, different title
+        userInput = targetIndex.getOneBased() + TITLE_DESC_PRACTICE + TITLE_DESC_PRESENTATION;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated start, same start
+        userInput = targetIndex.getOneBased() + START_DESC_PRACTICE + START_DESC_PRACTICE + END_DESC_PRACTICE;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated start, different start
+        userInput = targetIndex.getOneBased() + START_DESC_PRACTICE + START_DESC_PRESENTATION + END_DESC_PRACTICE;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated end, same end
+        userInput = targetIndex.getOneBased() + START_DESC_PRACTICE + END_DESC_PRACTICE + END_DESC_PRACTICE;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
+
+        // repeated end, different end
+        userInput = targetIndex.getOneBased() + START_DESC_PRACTICE + END_DESC_PRACTICE + END_DESC_PRESENTATION;
+        assertParseFailure(parser, userInput, MESSAGE_INVALID_REPEATED);
     }
 
     @Test
-    public void parse_invalidValueFollowedByValidValue_success() {
-        // no other valid values specified
-        Index targetIndex = INDEX_FIRST_EVENT;
-        String userInput = targetIndex.getOneBased() + INVALID_END_DESC + END_DESC_PRACTICE;
-        EditEventDescriptor descriptor = new EditEventDescriptorBuilder().withEndDateTime(VALID_END_PRACTICE).build();
-        EditEventCommand expectedCommand = new EditEventCommand(targetIndex, descriptor);
-        assertParseSuccess(parser, userInput, expectedCommand);
+    public void parse_repeatedTags_success() {
+        Index targetIndex = INDEX_SECOND_EVENT;
+        String userInput = targetIndex.getOneBased() + TAG_DESC_CCA + TAG_DESC_SWE;
 
-        // other valid values specified
-        userInput = targetIndex.getOneBased() + TITLE_DESC_PRACTICE + INVALID_END_DESC
-                + END_DESC_PRESENTATION;
-        descriptor = new EditEventDescriptorBuilder().withTitle(VALID_TITLE_PRACTICE)
-                .withEndDateTime(VALID_END_PRESENTATION).build();
-        expectedCommand = new EditEventCommand(targetIndex, descriptor);
+        EditEventDescriptor descriptor = new EditEventDescriptorBuilder()
+                .withTags(VALID_TAG_CCA, VALID_TAG_SWE).build();
+        EditEventCommand expectedCommand = new EditEventCommand(targetIndex, descriptor);
+
         assertParseSuccess(parser, userInput, expectedCommand);
     }
 
